@@ -1,3 +1,4 @@
+Here's the updated and properly formatted README file:
 
 ```markdown
 # Bank Branch API Service
@@ -20,6 +21,10 @@ This project provides a web service for querying bank and branch data using both
 ### Installation
 
 1. **Clone the repository**:
+
+   ```bash
+   git clone <repository-url>
+   ```
 
 2. **Activate the virtual environment**:
 
@@ -118,31 +123,6 @@ To ensure everything is working correctly, you can run the included unit tests.
 
   ```bash
   curl --location 'http://localhost:5000/gql' \
---header 'Content-Type: application/json' \
---data '{"query":"{ branches { edges { node { branch bank { name } ifsc } } } }","variables":{}}'
+  --header 'Content-Type: application/json' \
+  --data '{"query":"{ branches { edges { node { branch bank { name } ifsc } } } }","variables":{}}'
   ```
-
-### REST API
-
-- **Endpoint 1**: `/api/banks`
-
-  Retrieves the list of all banks.
-
-  **Test with `curl`**:
-
-  ```bash
-  curl -X GET http://localhost:5000/api/banks \
-  -H "Content-Type: application/json"
-  ```
-
-- **Endpoint 2**: `/api/branches/<IFSC_CODE>`
-
-  Retrieves details of a specific branch by its IFSC code.
-
-  **Test with `curl`**:
-
-  ```bash
-  curl -X GET http://localhost:5000/api/branches/<IFSC_CODE> \
-  -H "Content-Type: application/json"
-  ```
-```
