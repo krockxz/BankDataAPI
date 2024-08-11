@@ -117,9 +117,9 @@ To ensure everything is working correctly, you can run the included unit tests.
   **Test with `curl`**:
 
   ```bash
-  curl -X POST http://localhost:5000/gql \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ branches { edges { node { branch bank { name } ifsc } } } }"}'
+  curl --location 'http://localhost:5000/gql' \
+--header 'Content-Type: application/json' \
+--data '{"query":"{ branches { edges { node { branch bank { name } ifsc } } } }","variables":{}}'
   ```
 
 ### REST API

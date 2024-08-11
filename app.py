@@ -1,40 +1,82 @@
-from flask import Flask
-from flask_graphql import GraphQLView
-import logging
-
-from models import db_session
-from schema import schema
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from flask import Flask, jsonify, request
+from ariadne import QueryType, make_executable_schema, graphql_sync, gql
+from models import db_session, Banks as BankModel, Branches as BranchModel
 
 app = Flask(__name__)
-app.debug = True
 
-# Adding GraphQL endpoint
-app.add_url_rule(
-    '/gql',
-    view_func=GraphQLView.as_view(
-        'graphql',
-        schema=schema,
-        graphiql=True  # Enable GraphiQL interface
+type_defs = gql("""
+    type Query {
+        branches: BranchConnection!
+    }
+
+    type BranchConnection {
+        edges: [BranchEdge!]!
+    }
+
+    type BranchEdge {
+        node: Branch!
+    }
+
+    type Branch {
+        ifsc: String!
+        bank: Bank!
+        branch: String
+        address: String!
+        city: String!
+        district: String!
+        state: String!
+    }
+
+    type Bank {
+        id: ID!
+        name: String!
+    }
+""")
+
+query = QueryType()
+
+@query.field("branches")
+def resolve_branches(_, info):
+    branches = db_session.query(BranchModel).all()
+    edges = [{"node": branch} for branch in branches]
+    return {"edges": edges}
+
+schema = make_executable_schema(type_defs, query)
+
+@app.route("/gql", methods=["GET"])
+def graphql_playground():
+    playground_html = '''
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <meta charset=utf-8/>
+        <title>GraphQL Playground</title>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/graphql-playground-react/build/static/css/index.css"/>
+        <link rel="shortcut icon" href="//cdn.jsdelivr.net/npm/graphql-playground-react/build/favicon.png"/>
+        <script src="//cdn.jsdelivr.net/npm/graphql-playground-react/build/static/js/middleware.js"></script>
+    </head>
+
+    <body>
+        <div id="root"/>
+        <script>window.addEventListener('load', function (event) { GraphQLPlayground.init(document.getElementById('root'), { endpoint: '/gql' }) })</script>
+    </body>
+
+    </html>
+    '''
+    return playground_html, 200
+
+@app.route("/gql", methods=["POST"])
+def graphql_server():
+    data = request.get_json()
+    success, result = graphql_sync(
+        schema,
+        data,
+        context_value=request,
+        debug=app.debug
     )
-)
-
-@app.route('/')
-def home():
-    logger.info("Home route accessed")
-    return (
-        "<br/>"
-        "<h2>Append '/gql' at the end of this URL to visit the GraphQL interface</h2>"
-    )
-
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    logger.info("Session shutdown")
-    db_session.remove()
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
 
 if __name__ == '__main__':
-    logger.info("Starting the Flask app")
     app.run()
