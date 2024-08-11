@@ -21,11 +21,6 @@ This project provides a web service for querying bank and branch data using both
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone <repository_url>
-   cd <repository_directory>
-   ```
-
 2. **Activate the virtual environment**:
 
    If you already have a virtual environment set up, activate it:
@@ -67,6 +62,32 @@ python app.py
 ```
 
 The server will start on `http://localhost:5000/`.
+
+## Running Tests
+
+To ensure everything is working correctly, you can run the included unit tests.
+
+1. **Activate the virtual environment** if it is not already activated:
+
+   On Windows:
+   ```bash
+   venv\Scripts\activate
+   ```
+
+   On macOS/Linux:
+   ```bash
+   source venv/bin/activate
+   ```
+
+2. **Run the tests**:
+
+   Use the following command to run the tests:
+
+   ```bash
+   python -m unittest discover -s tests
+   ```
+
+   This will execute all tests in the `tests` directory.
 
 ## API Endpoints
 
@@ -124,3 +145,4 @@ The server will start on `http://localhost:5000/`.
   curl -X GET http://localhost:5000/api/branches/<IFSC_CODE> \
   -H "Content-Type: application/json"
   ```
+```
